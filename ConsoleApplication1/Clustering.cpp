@@ -1,3 +1,4 @@
+#define _USE_MATH_DEFINES
 #include "Clustering.h"
 #include "point.h"
 #include <iostream>
@@ -5,6 +6,7 @@
 #include <limits>
 #include <algorithm>
 #include <math.h>
+#include <cmath>
 
 cv::Mat conv2(const cv::Mat& src, const cv::Mat& kernel, ConvolutionType type) {
 	cv::Mat dest;
@@ -30,7 +32,21 @@ cv::Mat conv2(const cv::Mat& src, const cv::Mat& kernel, ConvolutionType type) {
 	return dest;
 }
 
+cv::Mat getGaussianKernel2D(int rows, int cols, double sigma) {
 
+	cv::Mat gKernel(rows, cols, CV_64F);
+
+	double halfSize = (double)gKernel.rows / 2.0;
+	for (int i = 0; i < rows; i++) {
+		for (int j = 0; j < cols; j++) {
+			double x = (double)j - halfSize;
+			double y = (double)i - halfSize;
+			gKernel.at<double>(j, i) = (1.0 / (M_PI*pow(sigma, 4))) * (1 - (x*x + y*y) / (sigma*sigma))* (pow(2.718281828, -(x*x + y*y) / 2 * sigma*sigma));
+		}
+	}
+
+	return gKernel;
+}
 
 Matrix buildDensityMatrix(std::vector<traj_elem_t>& trajs, double currRadius, double &minX, double &maxX, double &minY, double &maxY) {
 
@@ -69,7 +85,9 @@ Matrix buildDensityMatrix(std::vector<traj_elem_t>& trajs, double currRadius, do
 		}
 	}
 
-	cv::Mat gKernel = cv::getGaussianKernel((int)ceil(currRadius) * 2 + 1, currRadius / 3.0, CV_64F);
+	//cv::Mat gKernel = cv::getGaussianKernel((int)ceil(currRadius) * 2 + 1, currRadius / 3.0, CV_64F); // 1D Gaussian (size * 1)
+	cv::Mat gKernel = getGaussianKernel2D((int)ceil(currRadius) * 2 + 1, (int)ceil(currRadius) * 2 + 1, currRadius / 3.0);
+	//cv::Mat gKernelTrans = gKernel.t();
 	cv::Mat resultCVMat = conv2(densityCVMat, gKernel, CONVOLUTION_SAME);
 	//cv::GaussianBlur(densityCVMat, resultCVMat, cv::Size((int)ceil(currRadius) * 2 + 1, (int)ceil(currRadius) * 2 + 1), currRadius / 3.0, currRadius / 3.0);
 	for (int i = 0; i < rowSize; i++) {

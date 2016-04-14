@@ -67,9 +67,9 @@ int main() {
 	cComponent.compDrawTrajectoriesWithPercentage(centerTrajs, centerLabels, colors, cComponent.imageName, "Clustering Centers", clusterPercentage);
 	//cComponent.compDrawCenters(centerTrajs, centerLabels, colors, cComponent.imageName, "Group Directions");
 
-	std::vector<traj_elem_t> centerTrajsResample = cComponent.featureExtraction(centerTrajs, 50, cv::INTER_CUBIC);
+	std::vector<traj_elem_t> centerTrajsResample = cComponent.featureExtractionWithSmooth(centerTrajs, 50, cv::INTER_CUBIC, 1);
 
-	cComponent.compDrawCentersWithCurve(centerTrajsResample, centerLabels, colors, cComponent.imageName, "Center Points");
+	//cComponent.compDrawCentersWithCurve(centerTrajsResample, centerLabels, colors, cComponent.imageName, "Center Points");
 	cComponent.compDrawTrajectoriesWithPercentage(centerTrajsResample, centerLabels, colors, cComponent.imageName, "Smoothed Centers", clusterPercentage);
 
 	cv::waitKey(0);

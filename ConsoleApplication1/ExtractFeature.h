@@ -7,6 +7,7 @@
 
 std::vector<std::vector<double>> createGaussianFilter(int size);
 traj_elem_t resizeTrajectory(traj_elem_t& currTraj, int targetSize, int interpolation);
+traj_elem_t resizeTrajectoryAndSmooth(traj_elem_t& currTraj, int targetSize, int interpolation, int kernelSize);
 traj_elem_t resampleTrajectory(traj_elem_t& currTraj, int targetSize);
 traj_elem_t gaussianFilter(traj_elem_t& currTraj, std::vector<std::vector<double>>& gKernel);
 

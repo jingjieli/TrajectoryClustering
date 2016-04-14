@@ -50,10 +50,10 @@ std::vector<traj_elem_t> ClusteringComponent::featureExtraction(std::vector<traj
 	return newTrajs;
 }
 
-std::vector<traj_elem_t> ClusteringComponent::resampleTrajectories(std::vector<traj_elem_t>& originalTrajs, int targetSize) {
+std::vector<traj_elem_t> ClusteringComponent::featureExtractionWithSmooth(std::vector<traj_elem_t>& originalTrajs, int targetSize, int interpolation, int kernelSize) {
 	std::vector<traj_elem_t> newTrajs;
 	for (size_t i = 0; i < originalTrajs.size(); i++) {
-		newTrajs.push_back(resampleTrajectory(originalTrajs[i], targetSize));
+		newTrajs.push_back(resizeTrajectoryAndSmooth(originalTrajs[i], targetSize, interpolation, kernelSize));
 	}
 	return newTrajs;
 }

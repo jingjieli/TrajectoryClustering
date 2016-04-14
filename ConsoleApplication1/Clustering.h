@@ -18,6 +18,8 @@ enum ConvolutionType {
 	CONVOLUTION_VALID
 };
 
+cv::Mat getGaussianKernel2D(int rows, int cols, double sigma);
+
 std::vector<point_t> createPointsCollection(std::vector<traj_elem_t>& trajs); // create a collection of points from input trajectories
 
 std::vector<point_t> createPointsCollection(std::vector<traj_elem_t>& trajs, double &minX, double &maxX, double &minY, double &maxY);
