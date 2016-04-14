@@ -1,0 +1,150 @@
+/*
+	// first run
+	origPointsCollection = createPointsCollection(msTrajs);
+	NeighborPointsMap neighborsMap = createNeighborsMap(origPointsCollection, msPointsCollection, currRadius);
+	msTrajs = updateTrajs(msTrajs, msPointsCollection);
+
+	amskPointsCollection = fastAMSKClustering(amskTrajs, neighborsMap, currRadius);
+	amskTrajs = updateTrajs(amskTrajs, amskPointsCollection);
+
+	//drawTrajectories(msTrajs, copies[0], "Iter1");
+	drawTrajectories(amskTrajs, copies[0], "Iter1");
+
+	// second run
+	currRadius = currRadius - 5.0;
+
+	std::vector<point_t> newPointsCollection1;
+	NeighborPointsMap newNeighborsMap1 = fastNeighborsMap(msPointsCollection, newPointsCollection1, neighborsMap, currRadius);
+	//NeighborPointsMap newNeighborsMap1 = createNeighborsMap(msPointsCollection, newPointsCollection1, currRadius);
+	msTrajs = updateTrajs(msTrajs, newPointsCollection1);
+
+	std::vector<point_t> newAMSK = fastAMSKClustering(amskTrajs, newNeighborsMap1, currRadius);
+	amskTrajs = updateTrajs(amskTrajs, newAMSK);
+	
+	//drawTrajectories(msTrajs, copies[1], "Iter2");
+	drawTrajectories(amskTrajs, copies[1], "Iter2");
+
+	// third run
+	currRadius = currRadius - 5.0;
+
+	std::vector<point_t> newPointsCollection2;
+	NeighborPointsMap newNeighborsMap2 = fastNeighborsMap(newPointsCollection1, newPointsCollection2, newNeighborsMap1, currRadius);
+	//NeighborPointsMap newNeighborsMap2 = createNeighborsMap(newPointsCollection1, newPointsCollection2, currRadius);
+	msTrajs = updateTrajs(msTrajs, newPointsCollection2);
+
+	std::vector<point_t> newAMSK2 = fastAMSKClustering(amskTrajs, newNeighborsMap2, currRadius);
+	amskTrajs = updateTrajs(amskTrajs, newAMSK2);
+
+	//drawTrajectories(msTrajs, copies[2], "Iter3");
+	drawTrajectories(amskTrajs, copies[2], "Iter3");
+
+	// fourth run
+	currRadius = currRadius - 5.0;
+
+	std::vector<point_t> newPointsCollection3;
+	NeighborPointsMap newNeighborsMap3 = fastNeighborsMap(newPointsCollection2, newPointsCollection3, newNeighborsMap2, currRadius);
+	//NeighborPointsMap newNeighborsMap3 = createNeighborsMap(newPointsCollection2, newPointsCollection3, currRadius);
+	msTrajs = updateTrajs(msTrajs, newPointsCollection3);
+
+	std::vector<point_t> newAMSK3 = fastAMSKClustering(amskTrajs, newNeighborsMap3, currRadius);
+	amskTrajs = updateTrajs(amskTrajs, newAMSK3);
+
+	//drawTrajectories(msTrajs, copies[3], "Iter4");
+	drawTrajectories(amskTrajs, copies[3], "Iter4");
+
+	// fifth run
+	currRadius = currRadius - 5.0;
+
+	std::vector<point_t> newPointsCollection4;
+	NeighborPointsMap newNeighborsMap4 = fastNeighborsMap(newPointsCollection3, newPointsCollection4, newNeighborsMap3, currRadius);
+	//NeighborPointsMap newNeighborsMap4 = createNeighborsMap(newPointsCollection3, newPointsCollection4, currRadius);
+	msTrajs = updateTrajs(msTrajs, newPointsCollection4);
+
+	std::vector<point_t> newAMSK4 = fastAMSKClustering(amskTrajs, newNeighborsMap4, currRadius);
+	amskTrajs = updateTrajs(amskTrajs, newAMSK4);
+
+	//drawTrajectories(msTrajs, copies[4], "Iter5");
+	drawTrajectories(amskTrajs, copies[4], "Iter5");
+
+	// sixth run
+	currRadius = currRadius - 5.0;
+
+	std::vector<point_t> newPointsCollection5;
+	NeighborPointsMap newNeighborsMap5 = fastNeighborsMap(newPointsCollection4, newPointsCollection5, newNeighborsMap4, currRadius);
+	//NeighborPointsMap newNeighborsMap5 = createNeighborsMap(newPointsCollection4, newPointsCollection5, currRadius);
+	msTrajs = updateTrajs(msTrajs, newPointsCollection5);
+
+	std::vector<point_t> newAMSK5 = fastAMSKClustering(amskTrajs, newNeighborsMap5, currRadius);
+	amskTrajs = updateTrajs(amskTrajs, newAMSK5);
+
+	//drawTrajectories(msTrajs, copies[5], "Iter6");
+	drawTrajectories(amskTrajs, copies[5], "Iter6");
+
+	// seventh run
+	currRadius = currRadius - 5.0;
+
+	std::vector<point_t> newPointsCollection6;
+	NeighborPointsMap newNeighborsMap6 = fastNeighborsMap(newPointsCollection5, newPointsCollection6, newNeighborsMap5, currRadius);
+	//NeighborPointsMap newNeighborsMap6 = createNeighborsMap(newPointsCollection5, newPointsCollection6, currRadius);
+	msTrajs = updateTrajs(msTrajs, newPointsCollection6);
+
+	std::vector<point_t> newAMSK6 = fastAMSKClustering(amskTrajs, newNeighborsMap6, currRadius);
+	amskTrajs = updateTrajs(amskTrajs, newAMSK5);
+
+	//drawTrajectories(msTrajs, copies[6], "Iter7");
+	drawTrajectories(amskTrajs, copies[6], "Iter7");
+	*/
+
+
+
+
+
+
+	for (int iter = 1; iter <= ITERATIONS; iter++) {
+
+		std::clock_t startTime = std::clock();
+		double duration;
+
+		std::cout << "=================" << std::endl;
+		std::cout << "Enter iteration: " << iter << std::endl;
+
+		PointsCollection newPointsCollection;
+		NeighborPointsMap newNeighborsMap;
+
+		if (iter == 1) {
+			std::cout << "Call createNeighborsMap..." << std::endl;
+			newNeighborsMap = createNeighborsMap(origPointsCollection, newPointsCollection, currRadius);
+		}
+		else {
+			std::cout << "Call fastNeighborsMap..." << std::endl;
+			//newNeighborsMap = createNeighborsMap(msCollections.back(), newPointsCollection, currRadius);
+			//newNeighborsMap = fastNeighborsMap(msCollections.back(), newPointsCollection, mapsCollection.back(), currRadius);
+			newNeighborsMap = fastNeighborsMap(prevMSPointsCollection, newPointsCollection, prevNeighborsMap, currRadius);
+		}
+		prevMSPointsCollection.clear();
+		prevMSPointsCollection = newPointsCollection;
+		prevNeighborsMap.clear();
+		prevNeighborsMap = newNeighborsMap;
+		msTrajs = updateTrajs(msTrajs, newPointsCollection);
+		//msCollections.push_back(newPointsCollection);
+		//mapsCollection.push_back(newNeighborsMap);
+		//msTrajs = updateTrajs(msTrajs, msCollections.back());
+
+		std::cout << "Call fastAMSKClustering..." << std::endl;
+		//PointsCollection amksPointsCollection = fastamksClustering(amksTrajs, mapsCollection.back(), currRadius);
+		PointsCollection amksPointsCollection = fastAMKSClustering(amksTrajs, newNeighborsMap, currRadius);
+		//amskCollections.push_back(amskPointsCollection);
+		prevAMKSCollection.clear();
+		prevAMKSCollection = amksPointsCollection;
+		//amskTrajs = updateTrajs(amskTrajs, amskCollections.back());
+		amksTrajs = updateTrajs(amksTrajs, amksPointsCollection);
+
+		//drawTrajectories(amksTrajs, "DataLin.png", "Iter"+std::to_string(iter));
+
+		currRadius = currRadius - (MAX_RADIUS - MIN_RADIUS) / (ITERATIONS - 1);
+
+		std::cout << "Leave iteration: " << iter << std::endl;
+
+		duration = (std::clock() - startTime) / (double)CLOCKS_PER_SEC;
+		std::cout << "Iteration " << iter << " takes " << duration << " seconds." << std::endl;
+	}
