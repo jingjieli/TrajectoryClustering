@@ -61,8 +61,8 @@ traj_elem_t resizeTrajectory(traj_elem_t& currTraj, int targetSize, int interpol
 
 	/*cv::Mat gKernel = cv::getGaussianKernel(7, 0, CV_64F);
 
-	xFilteredMat = conv2(xResultMat, gKernel, CONVOLUTION_VALID);
-	yFilteredMat = conv2(yResultMat, gKernel, CONVOLUTION_VALID);*/
+	xFilteredMat = conv2d(xResultMat, gKernel, CONVOLUTION_VALID);
+	yFilteredMat = conv2d(yResultMat, gKernel, CONVOLUTION_VALID);*/
 
 	// std::cout << xResultMat << std::endl;
 	// std::cout << xResultMat.size() << std::endl;
@@ -115,10 +115,25 @@ traj_elem_t resizeTrajectoryAndSmooth(traj_elem_t& currTraj, int targetSize, int
 	/*std::cout << xResultMat.size() << std::endl;
 	std::cout << yResultMat.size() << std::endl;*/
 
-	cv::Mat gKernel = cv::getGaussianKernel(kernelSize, kernelSize / 6.0, CV_64F);
+	cv::Mat gKernel = cv::getGaussianKernel(kernelSize, kernelSize / 7.0, CV_64F);
+	std::vector<double> gKernelVector, xResizeVector, yResizeVector, xFilteredVector, yFilteredVector;
+	for (int i = 0; i < gKernel.rows; i++) {
+		gKernelVector.push_back(gKernel.at<double>(i, 0));
+	}
 
-	xFilteredMat = conv2(xResultMat, gKernel, CONVOLUTION_SAME);
-	yFilteredMat = conv2(yResultMat, gKernel, CONVOLUTION_SAME);
+	for (int i = 0; i < xResultMat.rows; i++) {
+		xResizeVector.push_back(xResultMat.at<double>(i, 0));
+	}
+
+	for (int i = 0; i < yResultMat.rows; i++) {
+		yResizeVector.push_back(yResultMat.at<double>(i, 0));
+	}
+
+	xFilteredVector = conv1d(xResizeVector, gKernelVector);
+	yFilteredVector = conv1d(yResizeVector, gKernelVector);
+
+	/*xFilteredMat = conv2d(xResultMat, gKernel, CONVOLUTION_SAME);
+	yFilteredMat = conv2d(yResultMat, gKernel, CONVOLUTION_SAME);*/
 
 	// std::cout << xResultMat << std::endl;
 	// std::cout << xResultMat.size() << std::endl;
@@ -128,14 +143,14 @@ traj_elem_t resizeTrajectoryAndSmooth(traj_elem_t& currTraj, int targetSize, int
 	for (int j = 0; j < targetSize; j++) {
 		point_t newPoint = {
 			currTraj.trajId,
-			xFilteredMat.at<double>(j, 0),
-			yFilteredMat.at<double>(j, 0),
+			xFilteredVector[j],
+			yFilteredVector[j],
 			0.0,
 			0.0,
-			xFilteredMat.at<double>(0, 0),
-			yFilteredMat.at<double>(0, 0),
-			xFilteredMat.at<double>(targetSize - 1, 0),
-			yFilteredMat.at<double>(targetSize - 1, 0),
+			xFilteredVector.front(),
+			yFilteredVector.front(),
+			xFilteredVector.back(),
+			yFilteredVector.back(),
 		};
 		newTraj.points.push_back(newPoint);
 	}

@@ -8,7 +8,40 @@
 #include <math.h>
 #include <cmath>
 
-cv::Mat conv2(const cv::Mat& src, const cv::Mat& kernel, ConvolutionType type) {
+std::vector<double> conv1d(std::vector<double> src, std::vector<double> gKernel) {
+	//int i, j, k;
+	std::vector<double> result, paddedSrc;
+
+	int halfSize = gKernel.size() / 2;
+
+	// init paddedSrc
+	for (int i = 0; i < halfSize; i++) {
+		paddedSrc.push_back(src.front());
+	}
+
+	for (int i = 0; i < src.size(); i++) {
+		paddedSrc.push_back(src[i]);
+	}
+
+	for (int i = 0; i < halfSize; i++) {
+		paddedSrc.push_back(src.back());
+	}
+
+	// set start index into paddedSrc
+	int srcIndex = halfSize;
+	for (int i = srcIndex; i < paddedSrc.size() - halfSize; i++) {
+		double sum = 0.0;
+		int j, gIndex;
+		for (j = i - halfSize, gIndex = 0; j <= i + halfSize; j++, gIndex++) {
+			sum = sum + paddedSrc[j] * gKernel[gIndex];
+		}
+		result.push_back(sum);
+	}
+
+	return result;
+}
+
+cv::Mat conv2d(const cv::Mat& src, const cv::Mat& kernel, ConvolutionType type) {
 	cv::Mat dest;
 	cv::Mat source = src;
 	if (type == CONVOLUTION_FULL) {
@@ -88,7 +121,7 @@ Matrix buildDensityMatrix(std::vector<traj_elem_t>& trajs, double currRadius, do
 	//cv::Mat gKernel = cv::getGaussianKernel((int)ceil(currRadius) * 2 + 1, currRadius / 3.0, CV_64F); // 1D Gaussian (size * 1)
 	cv::Mat gKernel = getGaussianKernel2D((int)ceil(currRadius) * 2 + 1, (int)ceil(currRadius) * 2 + 1, currRadius / 3.0);
 	//cv::Mat gKernelTrans = gKernel.t();
-	cv::Mat resultCVMat = conv2(densityCVMat, gKernel, CONVOLUTION_SAME);
+	cv::Mat resultCVMat = conv2d(densityCVMat, gKernel, CONVOLUTION_SAME);
 	//cv::GaussianBlur(densityCVMat, resultCVMat, cv::Size((int)ceil(currRadius) * 2 + 1, (int)ceil(currRadius) * 2 + 1), currRadius / 3.0, currRadius / 3.0);
 	for (int i = 0; i < rowSize; i++) {
 		for (int j = 0; j < colSize; j++) {

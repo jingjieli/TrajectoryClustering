@@ -14,7 +14,8 @@
 #define MAX_RADIUS 40.0
 #define MIN_RADIUS 15.0
 #define POINTS_PER_TRAJ 30
-#define MIN_NUM_OF_POINTS_IN_TRAJ 50
+#define MIN_NUM_OF_POINTS_IN_TRAJ 45
+#define SMOOTH_GAUSSIAN_SIZE 21
 
 typedef std::vector<point_t> PointsCollection;
 
@@ -67,7 +68,7 @@ int main() {
 	cComponent.compDrawTrajectoriesWithPercentage(centerTrajs, centerLabels, colors, cComponent.imageName, "Clustering Centers", clusterPercentage);
 	//cComponent.compDrawCenters(centerTrajs, centerLabels, colors, cComponent.imageName, "Group Directions");
 
-	std::vector<traj_elem_t> centerTrajsResample = cComponent.featureExtractionWithSmooth(centerTrajs, 50, cv::INTER_CUBIC, 1);
+	std::vector<traj_elem_t> centerTrajsResample = cComponent.featureExtractionWithSmooth(centerTrajs, 50, cv::INTER_CUBIC, SMOOTH_GAUSSIAN_SIZE);
 
 	//cComponent.compDrawCentersWithCurve(centerTrajsResample, centerLabels, colors, cComponent.imageName, "Center Points");
 	cComponent.compDrawTrajectoriesWithPercentage(centerTrajsResample, centerLabels, colors, cComponent.imageName, "Smoothed Centers", clusterPercentage);

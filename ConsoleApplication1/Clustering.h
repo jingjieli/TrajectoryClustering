@@ -42,6 +42,8 @@ bool isInSameCluster(traj_elem_t firstTraj, traj_elem_t secondTraj); // return t
 
 bool isAbnormal(std::vector<traj_elem_t> centerTrajs, traj_elem_t testTraj);
 
-cv::Mat conv2(const cv::Mat& src, const cv::Mat& kernel, ConvolutionType type); // 2D convolution
+cv::Mat conv2d(const cv::Mat& src, const cv::Mat& kernel, ConvolutionType type); // 2D convolution
+
+std::vector<double> conv1d(std::vector<double> src, std::vector<double> gKernel);
 
 #endif 
