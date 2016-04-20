@@ -239,11 +239,19 @@ NeighborPointsMap createNeighborsMap(std::vector<point_t>& pointsCollection,
 		for (size_t k = 0; k < pointsCollection.size(); k++) {
 			if (j != k) {
 				point_t currTestPoint = pointsCollection[k];
-				double currDistance = sqrt(pow((currPoint.x_coordinate - currTestPoint.x_coordinate), 2.0) +
-					pow((currPoint.y_coordinate - currTestPoint.y_coordinate), 2.0));
-				if (currDistance <= currRadius) {
-					std::pair<int, double> currPair(k, currDistance);
-					currNeighbors.push_back(currPair);
+
+				// calculate Euclidean distance only if currTestPoint is roughly within range
+				if (currTestPoint.x_coordinate >= currPoint.x_coordinate - currRadius &&
+					currTestPoint.x_coordinate <= currPoint.x_coordinate + currRadius &&
+					currTestPoint.y_coordinate >= currPoint.y_coordinate - currRadius &&
+					currTestPoint.y_coordinate <= currPoint.y_coordinate + currRadius) {
+
+					double currDistance = sqrt(pow((currPoint.x_coordinate - currTestPoint.x_coordinate), 2.0) +
+						pow((currPoint.y_coordinate - currTestPoint.y_coordinate), 2.0));
+					if (currDistance <= currRadius) {
+						std::pair<int, double> currPair(k, currDistance);
+						currNeighbors.push_back(currPair);
+					}
 				}
 			}
 		}
@@ -317,11 +325,19 @@ NeighborPointsMap fastNeighborsMap(std::vector<point_t>& pointsCollection, std::
 		for (size_t k = 0; k < originalMap.find(j)->second.size(); k++) {
 			int currNeighborIndex = originalMap.find(j)->second[k].first;
 			point_t currTestPoint = pointsCollection[currNeighborIndex];
-			double currDistance = sqrt(pow((currPoint.x_coordinate - currTestPoint.x_coordinate), 2.0) +
-				pow((currPoint.y_coordinate - currTestPoint.y_coordinate), 2.0));
-			if (currDistance <= currRadius) {
-				std::pair<int, double> currPair(currNeighborIndex, currDistance);
-				currNeighbors.push_back(currPair);
+
+			// calculate Euclidean distance only if currTestPoint is roughly within range
+			if (currTestPoint.x_coordinate >= currPoint.x_coordinate - currRadius &&
+				currTestPoint.x_coordinate <= currPoint.x_coordinate + currRadius &&
+				currTestPoint.y_coordinate >= currPoint.y_coordinate - currRadius &&
+				currTestPoint.y_coordinate <= currPoint.y_coordinate + currRadius) {
+
+				double currDistance = sqrt(pow((currPoint.x_coordinate - currTestPoint.x_coordinate), 2.0) +
+					pow((currPoint.y_coordinate - currTestPoint.y_coordinate), 2.0));
+				if (currDistance <= currRadius) {
+					std::pair<int, double> currPair(currNeighborIndex, currDistance);
+					currNeighbors.push_back(currPair);
+				}
 			}
 		}
 		resultMap.insert(std::pair<int, std::vector<std::pair<int, double>>>(j, currNeighbors));
@@ -529,7 +545,7 @@ bool isInSameCluster(traj_elem_t firstTraj, traj_elem_t secondTraj) {
 	}
 
 	double dtwDist = dtw[rowSize - 1][colSize - 1] / (rowSize - 1);
-	if (dtwDist < 18.0) {
+	if (dtwDist < TRAJS_DIST_THRESHOLD) {
 		return true;
 	}
 

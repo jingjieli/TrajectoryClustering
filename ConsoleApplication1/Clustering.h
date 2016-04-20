@@ -8,6 +8,8 @@
 #ifndef CLUSTERING_H
 #define CLUSTERING_H
 
+#define TRAJS_DIST_THRESHOLD 35.0
+
 typedef std::vector<double> Column;
 typedef std::vector<Column> Matrix;
 typedef std::map<int, std::vector<std::pair<int, double>>> NeighborPointsMap;

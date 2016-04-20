@@ -58,9 +58,9 @@ std::vector<traj_elem_t> ClusteringComponent::featureExtractionWithSmooth(std::v
 	return newTrajs;
 }
 
-std::vector<traj_elem_t> ClusteringComponent::readTrajDataFromSrc(std::string filename, int filterSize) {
+std::vector<traj_elem_t> ClusteringComponent::readTrajDataFromSrc(std::string filename, int minTrajDataSize, int maxTrajDataSize) {
 	std::vector<traj_elem_t> srcTrajs;
-	srcTrajs = readTrajDataFromFile(filename, filterSize);
+	srcTrajs = readTrajDataFromFile(filename, minTrajDataSize, maxTrajDataSize);
 	return srcTrajs;
 }
 
@@ -118,7 +118,7 @@ void ClusteringComponent::compDrawTrajectoriesWithPercentage(std::vector<traj_el
 	}
 
 	for (size_t i = 0; i < trajs.size(); i++) {
-		if (trajs[i].points.size() >= 2) {
+		if (trajs[i].points.size() >= 2 && percentages[i] >= 5.0) {
 			int numOfPoints = trajs[i].points.size();
 			//int clusterId = trajs[i].clusterId;
 			for (size_t j = 0; j < trajs[i].points.size() - 1; j++) {
@@ -279,7 +279,7 @@ traj_elem_t ClusteringComponent::computeClusterCenter(std::vector<traj_elem_t>& 
 	}
 
 	if (targetTrajs.size() >= 3) {
-
+		// compute cluster center only if there're a few tracks 
 		for (int j = 0; j < targetTrajs[0].numOfPoints; j++) {
 			double xCoorSum = 0.0, yCoorSum = 0.0, speedXSum = 0.0, speedYSum = 0.0, startXSum = 0.0, startYSum = 0.0, endXSum = 0.0, endYSum = 0.0;
 			for (size_t k = 0; k < targetTrajs.size(); k++) {
@@ -441,7 +441,7 @@ void ClusteringComponent::runAMKSClustering(PointsCollection& origPoints, Points
 			prevAMKSPoints = amksPointsCollection;
 			amksTrajs = updateTrajs(amksTrajs, amksPointsCollection);
 	
-			//compDrawTrajectories(amksTrajs, imageName, "Iter"+std::to_string(iter));
+			compDrawTrajectories(amksTrajs, imageName, "Iter"+std::to_string(iter));
 	
 			currRadius = currRadius - (startRadius - endRadius) / (iterations - 1);
 	

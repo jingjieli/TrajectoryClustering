@@ -9,7 +9,6 @@
 #include <math.h>
 #include <opencv2\core\core.hpp>
 #include <opencv2\highgui\highgui.hpp>
-#include "SVGCurveLib.h"
 
 #include "point.h"
 #include "trajectory.h"
@@ -53,7 +52,7 @@ public:
 	std::vector<traj_elem_t> featureExtraction(std::vector<traj_elem_t>& originalTrajs, int targetSize, int interpolation); // resample input trajectories to target size
 	std::vector<traj_elem_t> featureExtractionWithSmooth(std::vector<traj_elem_t>& originalTrajs, int targetSize, int interpolation, int kernelSize);
 	std::vector<traj_elem_t> resampleTrajectories(std::vector<traj_elem_t>& originalTrajs, int targetSize);
-	std::vector<traj_elem_t> readTrajDataFromSrc(std::string filename, int filterSize); // handle input file
+	std::vector<traj_elem_t> readTrajDataFromSrc(std::string filename, int minTrajDataSize, int maxTrajDataSize); // handle input file
 	std::vector<point_t> createPointsCollectionFromTrajs(std::vector<traj_elem_t>& trajs); // create a collection of points from all trajectories
 	std::string to_string_with_precision(double input_value, int n);
 
