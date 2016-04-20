@@ -25,7 +25,7 @@ std::vector<traj_elem_t> readTrajDataFromFile(std::string filename, int filterTr
 
 			int currNumOfPoints = std::stoi(fileLine[1]);
 
-			if (currNumOfPoints > filterTrajSize) {
+			if (currNumOfPoints > filterTrajSize && currNumOfPoints <= 80) {
 
 				//int currTrajId = std::stoi(fileLine[0]);
 				//int currNumOfPoints = std::stoi(fileLine[1]);
@@ -69,6 +69,8 @@ std::vector<traj_elem_t> readTrajDataFromFile(std::string filename, int filterTr
 	else {
 		std::cout << "Failed to read" << std::endl;
 	}
+
+	std::cout << "Load data succeed, there are " << trajs.size() << " trajectories being used." << std::endl;
 
 	return trajs;
 }

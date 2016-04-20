@@ -13,13 +13,15 @@
 #define ITERATIONS 6
 #define MAX_RADIUS 40.0
 #define MIN_RADIUS 15.0
-#define POINTS_PER_TRAJ 30
-#define MIN_NUM_OF_POINTS_IN_TRAJ 45
+#define POINTS_PER_TRAJ 20
+#define MIN_NUM_OF_POINTS_IN_TRAJ 20
 #define SMOOTH_GAUSSIAN_SIZE 21
 
 typedef std::vector<point_t> PointsCollection;
 
-int main() {
+int main(int argc, char *argv[]) {
+
+	//int argc, char *argv[]
 
 	std::vector<cv::Scalar> colors = { cv::Scalar(240, 120, 100), cv::Scalar(170, 80, 110), cv::Scalar(120, 30, 60), cv::Scalar(140, 140, 200),
 		cv::Scalar(140, 100, 140), cv::Scalar(240, 160, 80), cv::Scalar(170, 200, 120), cv::Scalar(150, 200, 60),
@@ -28,8 +30,10 @@ int main() {
 		cv::Scalar(150, 180, 180), cv::Scalar(60, 240, 30), cv::Scalar(240, 130, 110), cv::Scalar(140, 60, 170),
 		cv::Scalar(160, 160, 180), cv::Scalar(90, 200, 120), cv::Scalar(160, 160, 80), cv::Scalar(90, 170, 60) };
 
-	std::string srcFileName = "Test.txt";
-	std::string srcImageName = "Test.png";
+	std::string srcFileName = argv[1];
+	std::string srcImageName = argv[2];
+	/*std::string srcFileName = "DataLin_split_1.txt";
+	std::string srcImageName = "DataLin.png";*/
 
 	std::vector<traj_elem_t> origTrajs, origTrajsResample, msTrajs, amksTrajs, centerTrajs;
 	NeighborPointsMap prevNeighborMap, currNeighborsMap;
@@ -74,6 +78,8 @@ int main() {
 	cComponent.compDrawTrajectoriesWithPercentage(centerTrajsResample, centerLabels, colors, cComponent.imageName, "Smoothed Centers", clusterPercentage);
 
 	cv::waitKey(0);
+
+	std::getchar();
 
 	return 0;
 }

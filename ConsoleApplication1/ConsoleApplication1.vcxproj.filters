@@ -94,6 +94,15 @@
     <Text Include="Test_1.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="DataLin_split.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="DataLin_split_1.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="pcs_tracks.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\Release\DataHu.png">

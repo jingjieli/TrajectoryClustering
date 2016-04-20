@@ -14,17 +14,20 @@ std::vector<double> conv1d(std::vector<double> src, std::vector<double> gKernel)
 
 	int halfSize = gKernel.size() / 2;
 
-	// init paddedSrc
+	// init paddedSrc (size = len(src) + len(gKernel) - 1)
 	for (int i = 0; i < halfSize; i++) {
-		paddedSrc.push_back(src.front());
+		paddedSrc.push_back(src[halfSize - i]); // symmetric padding with elems center around first point
+		//paddedSrc.push_back(src.front());
 	}
 
 	for (int i = 0; i < src.size(); i++) {
-		paddedSrc.push_back(src[i]);
+		paddedSrc.push_back(src[i]); // fill with elems in src
 	}
 
 	for (int i = 0; i < halfSize; i++) {
-		paddedSrc.push_back(src.back());
+		int last = src.size() - 1;
+		paddedSrc.push_back(src[last - i - 1]); // symmetric padding with elems center around last point
+		//paddedSrc.push_back(src.back());
 	}
 
 	// set start index into paddedSrc
@@ -212,11 +215,11 @@ NeighborPointsMap createNeighborsMap(std::vector<point_t>& pointsCollection,
 
 	// calculate pairwise distance between every two points in collection 
 	// store result in a matrix
-	int numOfPoints = pointsCollection.size();
+	//int numOfPoints = pointsCollection.size();
 	//std::cout << "Create distMatrix ..." << std::endl;
-	Matrix distMatrix(numOfPoints, Column(numOfPoints, 0.0));
+	//Matrix distMatrix(numOfPoints, Column(numOfPoints, 0.0));
 	//std::cout << distMatrix.size() << std::endl;
-	for (int i = 0; i < numOfPoints; i++) {
+	/*for (int i = 0; i < numOfPoints; i++) {
 		for (int j = 0; j < numOfPoints; j++) {
 			if (j > i) {
 				distMatrix[i][j] = sqrt(pow(pointsCollection[i].x_coordinate - pointsCollection[j].x_coordinate, 2.0) +
@@ -226,14 +229,14 @@ NeighborPointsMap createNeighborsMap(std::vector<point_t>& pointsCollection,
 				distMatrix[i][j] = distMatrix[j][i];
 			}
 		}
-	}
+	}*/
 
 	NeighborPointsMap neighborsMap;
 	
 	for (size_t j = 0; j < pointsCollection.size(); j++) {
 		point_t currPoint = pointsCollection[j];
 		std::vector<std::pair<int, double>> currNeighbors;
-		/*for (size_t k = 0; k < pointsCollection.size(); k++) {
+		for (size_t k = 0; k < pointsCollection.size(); k++) {
 			if (j != k) {
 				point_t currTestPoint = pointsCollection[k];
 				double currDistance = sqrt(pow((currPoint.x_coordinate - currTestPoint.x_coordinate), 2.0) +
@@ -243,13 +246,13 @@ NeighborPointsMap createNeighborsMap(std::vector<point_t>& pointsCollection,
 					currNeighbors.push_back(currPair);
 				}
 			}
-		}*/
-		for (int k = 0; k < numOfPoints; k++) {
+		}
+		/*for (int k = 0; k < numOfPoints; k++) {
 			if (j != k && distMatrix[j][k] <= currRadius) {
 				std::pair<int, double> currPair(k, distMatrix[j][k]);
 				currNeighbors.push_back(currPair);
 			}
-		}
+		}*/
 		neighborsMap.insert(std::pair<int, std::vector<std::pair<int, double>>>(j, currNeighbors));
 
 		if (currNeighbors.size() != 0) {
@@ -526,7 +529,7 @@ bool isInSameCluster(traj_elem_t firstTraj, traj_elem_t secondTraj) {
 	}
 
 	double dtwDist = dtw[rowSize - 1][colSize - 1] / (rowSize - 1);
-	if (dtwDist < 15.0) {
+	if (dtwDist < 18.0) {
 		return true;
 	}
 
