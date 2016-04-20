@@ -42,9 +42,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SVGCurveLib.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="trajectory.h">
@@ -66,9 +63,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ClusteringComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SVGCurveLib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -101,6 +95,9 @@
       <Filter>Resource Files</Filter>
     </Text>
     <Text Include="pcs_tracks.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="DataLin_split_2.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>

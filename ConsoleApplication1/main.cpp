@@ -10,18 +10,16 @@
 #include <opencv2\highgui\highgui.hpp>
 #include "ClusteringComponent.h"
 
-#define ITERATIONS 6
+#define ITERATIONS 7
 #define MAX_RADIUS 40.0
 #define MIN_RADIUS 15.0
-#define POINTS_PER_TRAJ 20
-#define MIN_NUM_OF_POINTS_IN_TRAJ 20
+//#define POINTS_PER_TRAJ 20
+//#define MIN_NUM_OF_POINTS_IN_TRAJ 20
 #define SMOOTH_GAUSSIAN_SIZE 21
 
 typedef std::vector<point_t> PointsCollection;
 
 int main(int argc, char *argv[]) {
-
-	//int argc, char *argv[]
 
 	std::vector<cv::Scalar> colors = { cv::Scalar(240, 120, 100), cv::Scalar(170, 80, 110), cv::Scalar(120, 30, 60), cv::Scalar(140, 140, 200),
 		cv::Scalar(140, 100, 140), cv::Scalar(240, 160, 80), cv::Scalar(170, 200, 120), cv::Scalar(150, 200, 60),
@@ -32,6 +30,10 @@ int main(int argc, char *argv[]) {
 
 	std::string srcFileName = argv[1];
 	std::string srcImageName = argv[2];
+	int minPointsPerTraj = std::stoi(argv[3]);
+	int maxPointsPerTraj = std::stoi(argv[4]);
+	int resampleSize = std::stoi(argv[5]);
+
 	/*std::string srcFileName = "DataLin_split_1.txt";
 	std::string srcImageName = "DataLin.png";*/
 
@@ -42,16 +44,23 @@ int main(int argc, char *argv[]) {
 	std::vector<int> labels, centerLabels;
 
 	// instantiate a new ClusteirngComponent object
-	ClusteringComponent cComponent(srcFileName, srcImageName, MAX_RADIUS, MIN_RADIUS, POINTS_PER_TRAJ, ITERATIONS);
+	//ClusteringComponent cComponent(srcFileName, srcImageName, MAX_RADIUS, MIN_RADIUS, POINTS_PER_TRAJ, ITERATIONS);
+	ClusteringComponent cComponent(srcFileName, srcImageName, MAX_RADIUS, MIN_RADIUS, resampleSize, ITERATIONS);
 
 	// get input data
-	origTrajs = cComponent.readTrajDataFromSrc(cComponent.textFileName, MIN_NUM_OF_POINTS_IN_TRAJ);
+	//origTrajs = cComponent.readTrajDataFromSrc(cComponent.textFileName, MIN_NUM_OF_POINTS_IN_TRAJ);
+	origTrajs = cComponent.readTrajDataFromSrc(cComponent.textFileName, minPointsPerTraj, maxPointsPerTraj);
 
 	// extract feature
 	int interpolationType = cv::INTER_AREA;
-	origTrajsResample = cComponent.featureExtraction(origTrajs, cComponent.targetSize, interpolationType);
+
+	origTrajsResample = cComponent.featureExtractionWithSmooth(origTrajs, cComponent.targetSize, interpolationType, 5);
+	msTrajs = cComponent.featureExtractionWithSmooth(origTrajs, cComponent.targetSize, interpolationType, 5);
+	amksTrajs = cComponent.featureExtractionWithSmooth(origTrajs, cComponent.targetSize, interpolationType, 5);
+
+	/*origTrajsResample = cComponent.featureExtraction(origTrajs, cComponent.targetSize, interpolationType);
 	msTrajs = cComponent.featureExtraction(origTrajs, cComponent.targetSize, interpolationType);
-	amksTrajs = cComponent.featureExtraction(origTrajs, cComponent.targetSize, interpolationType);
+	amksTrajs = cComponent.featureExtraction(origTrajs, cComponent.targetSize, interpolationType);*/
 
 	cComponent.compDrawTrajectories(origTrajsResample, cComponent.imageName, "Resampled Trajectories");
 

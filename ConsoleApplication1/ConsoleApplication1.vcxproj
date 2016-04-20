@@ -166,7 +166,6 @@
     <ClCompile Include="point.cpp" />
     <ClCompile Include="Sample.cpp" />
     <ClCompile Include="StringSplit.cpp" />
-    <ClCompile Include="SVGCurveLib.cpp" />
     <ClCompile Include="trajectory.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -176,7 +175,6 @@
     <ClInclude Include="InputFileHandler.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="StringSplit.h" />
-    <ClInclude Include="SVGCurveLib.h" />
     <ClInclude Include="trajectory.h" />
   </ItemGroup>
   <ItemGroup>
@@ -184,6 +182,7 @@
     <Text Include="DataLin.txt" />
     <Text Include="DataLin_split.txt" />
     <Text Include="DataLin_split_1.txt" />
+    <Text Include="DataLin_split_2.txt" />
     <Text Include="DataMorris.txt" />
     <Text Include="pcs_tracks.txt" />
     <Text Include="scratch.txt" />

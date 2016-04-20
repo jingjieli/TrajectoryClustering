@@ -7,7 +7,7 @@
 #include <string> 
 
 // read trajectpry data from a file 
-std::vector<traj_elem_t> readTrajDataFromFile(std::string filename, int filterTrajSize) {
+std::vector<traj_elem_t> readTrajDataFromFile(std::string filename, int minTrajDataSize, int maxTrajDataSize) {
 
 	std::vector<traj_elem_t> trajs;
 	std::ifstream trajDataFile;
@@ -25,7 +25,7 @@ std::vector<traj_elem_t> readTrajDataFromFile(std::string filename, int filterTr
 
 			int currNumOfPoints = std::stoi(fileLine[1]);
 
-			if (currNumOfPoints > filterTrajSize && currNumOfPoints <= 80) {
+			if (currNumOfPoints >= minTrajDataSize && currNumOfPoints <= maxTrajDataSize) {
 
 				//int currTrajId = std::stoi(fileLine[0]);
 				//int currNumOfPoints = std::stoi(fileLine[1]);
