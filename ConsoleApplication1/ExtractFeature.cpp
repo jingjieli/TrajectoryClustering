@@ -72,14 +72,14 @@ traj_elem_t resizeTrajectory(traj_elem_t& currTraj, int targetSize, int interpol
 	for (int j = 0; j < targetSize; j++) {
 		point_t newPoint = {
 			currTraj.trajId,
-			xResultMat.at<double>(j, 0),
-			yResultMat.at<double>(j, 0),
+			(float)xResultMat.at<double>(j, 0),
+			(float)yResultMat.at<double>(j, 0),
 			0.0,
 			0.0,
-			xResultMat.at<double>(0, 0),
-			yResultMat.at<double>(0, 0),
-			xResultMat.at<double>(targetSize-1, 0),
-			yResultMat.at<double>(targetSize-1, 0),
+			(float)xResultMat.at<double>(0, 0),
+			(float)yResultMat.at<double>(0, 0),
+			(float)xResultMat.at<double>(targetSize-1, 0),
+			(float)yResultMat.at<double>(targetSize-1, 0),
 		};
 		newTraj.points.push_back(newPoint);
 	}
@@ -143,14 +143,14 @@ traj_elem_t resizeTrajectoryAndSmooth(traj_elem_t& currTraj, int targetSize, int
 	for (int j = 0; j < targetSize; j++) {
 		point_t newPoint = {
 			currTraj.trajId,
-			xFilteredVector[j],
-			yFilteredVector[j],
+			(float)xFilteredVector[j],
+			(float)yFilteredVector[j],
 			0.0,
 			0.0,
-			xFilteredVector.front(),
-			yFilteredVector.front(),
-			xFilteredVector.back(),
-			yFilteredVector.back(),
+			(float)xFilteredVector.front(),
+			(float)yFilteredVector.front(),
+			(float)xFilteredVector.back(),
+			(float)yFilteredVector.back(),
 		};
 		newTraj.points.push_back(newPoint);
 	}
@@ -184,14 +184,14 @@ traj_elem_t resampleTrajectory(traj_elem_t& currTraj, int targetSize) {
 	for (int j = 0; j < targetSize; j++) {
 		point_t newPoint = {
 			currTraj.trajId,
-			xResample[j],
-			yResample[j],
+			(float)xResample[j],
+			(float)yResample[j],
 			0.0,
 			0.0,
-			xResample.front(),
-			yResample.front(),
-			xResample.back(),
-			yResample.back(),
+			(float)xResample.front(),
+			(float)yResample.front(),
+			(float)xResample.back(),
+			(float)yResample.back(),
 		};
 		newTraj.points.push_back(newPoint);
 	}

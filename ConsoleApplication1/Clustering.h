@@ -8,17 +8,28 @@
 #ifndef CLUSTERING_H
 #define CLUSTERING_H
 
-#define TRAJS_DIST_THRESHOLD 35.0
+//#define TRAJS_DIST_THRESHOLD 25.0
+#define MAX_NEIGHBORS_SIZE 80
 
 typedef std::vector<double> Column;
 typedef std::vector<Column> Matrix;
-typedef std::map<int, std::vector<std::pair<int, double>>> NeighborPointsMap;
+typedef std::map<int, std::vector<std::pair<int, float>>> NeighborPointsMap;
 
 enum ConvolutionType {
 	CONVOLUTION_FULL,
 	CONVOLUTION_SAME,
 	CONVOLUTION_VALID
 };
+
+// sort pairs in into ascending order
+struct sort_pair
+{
+	bool operator()(const std::pair<int, float> &left, const std::pair<int, float> &right) {
+		return left.second < right.second;
+	}
+};
+
+void pair_insert(std::vector<std::pair<int, float>>& targetVector, std::pair<int, float> targetPair);
 
 cv::Mat getGaussianKernel2D(int rows, int cols, double sigma);
 
@@ -40,7 +51,9 @@ Matrix buildDensityMatrix(std::vector<traj_elem_t>& trajs, double currRadius, do
 
 std::vector<point_t> fastAMKSClustering(std::vector<traj_elem_t>& trajs, NeighborPointsMap& neighborsMap, double currRadius); // AMKS Clustering
 
-bool isInSameCluster(traj_elem_t firstTraj, traj_elem_t secondTraj); // return true if two trajs are in the same cluster (use Dynamic Time Warping)
+int trajsPartition(std::vector<traj_elem_t>& trajs, std::vector<int>& labels, double trajThreshold, std::vector<std::vector<float>>& distMatrix);
+
+bool isInSameCluster(traj_elem_t firstTraj, traj_elem_t secondTraj, double distThreshold, float& trajsDist); // return true if two trajs are in the same cluster (use Dynamic Time Warping)
 
 bool isAbnormal(std::vector<traj_elem_t> centerTrajs, traj_elem_t testTraj);
 

@@ -35,14 +35,14 @@ std::vector<traj_elem_t> readTrajDataFromFile(std::string filename, int minTrajD
 				for (std::size_t i = 3; i < fileLine.size() - 1; i = i + 2) {
 					point_t curr_point = {
 						currTrajId,
-						std::stod(fileLine[i]),
-						std::stod(fileLine[i + 1]),
+						std::stof(fileLine[i]),
+						std::stof(fileLine[i + 1]),
 						0.0,
 						0.0,
-						std::stod(fileLine[3]),
-						std::stod(fileLine[4]),
-						std::stod(fileLine[fileLine.size() - 2]),
-						std::stod(fileLine[fileLine.size() - 1]),
+						std::stof(fileLine[3]),
+						std::stof(fileLine[4]),
+						std::stof(fileLine[fileLine.size() - 2]),
+						std::stof(fileLine[fileLine.size() - 1]),
 					};
 					pointsInCurrTraj.push_back(curr_point);
 				}

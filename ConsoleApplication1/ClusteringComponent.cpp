@@ -80,8 +80,8 @@ void ClusteringComponent::compDrawTrajectories(std::vector<traj_elem_t>& trajs, 
 		if (trajs[i].points.size() >= 2) {
 			int clusterId = trajs[i].clusterId;
 			for (size_t j = 0; j < trajs[i].points.size() - 1; j++) {
-				cv::line(image, cv::Point(trajs[i].points[j].x_coordinate, trajs[i].points[j].y_coordinate),
-					cv::Point(trajs[i].points[j + 1].x_coordinate, trajs[i].points[j + 1].y_coordinate), cv::Scalar(110, 220, 0), 1, 8);
+				cv::line(image, cv::Point2d(trajs[i].points[j].x_coordinate, trajs[i].points[j].y_coordinate),
+					cv::Point2d(trajs[i].points[j + 1].x_coordinate, trajs[i].points[j + 1].y_coordinate), cv::Scalar(110, 220, 0), 2, 8);
 			}
 		}
 	}
@@ -100,8 +100,8 @@ void ClusteringComponent::compDrawTrajectories(std::vector<traj_elem_t>& trajs, 
 		if (trajs[i].points.size() >= 2) {
 			int clusterId = trajs[i].clusterId;
 			for (size_t j = 0; j < trajs[i].points.size() - 1; j++) {
-				cv::line(image, cv::Point(trajs[i].points[j].x_coordinate, trajs[i].points[j].y_coordinate),
-					cv::Point(trajs[i].points[j + 1].x_coordinate, trajs[i].points[j + 1].y_coordinate), colors[labels[i]], 2, 8);
+				cv::line(image, cv::Point2d(trajs[i].points[j].x_coordinate, trajs[i].points[j].y_coordinate),
+					cv::Point2d(trajs[i].points[j + 1].x_coordinate, trajs[i].points[j + 1].y_coordinate), colors[labels[i]], 3, CV_AA);
 			}
 		}
 	}
@@ -118,31 +118,33 @@ void ClusteringComponent::compDrawTrajectoriesWithPercentage(std::vector<traj_el
 	}
 
 	for (size_t i = 0; i < trajs.size(); i++) {
-		if (trajs[i].points.size() >= 2 && percentages[i] >= 5.0) {
+		if (trajs[i].points.size() >= 2 && percentages[i] >= 1.0) {
+		//if (trajs[i].points.size() >= 2) {
+			std::cout << "Traj " << i << " " << percentages[i] << std::endl;
 			int numOfPoints = trajs[i].points.size();
 			//int clusterId = trajs[i].clusterId;
 			for (size_t j = 0; j < trajs[i].points.size() - 1; j++) {
-				cv::line(image, cv::Point(trajs[i].points[j].x_coordinate, trajs[i].points[j].y_coordinate),
-					cv::Point(trajs[i].points[j + 1].x_coordinate, trajs[i].points[j + 1].y_coordinate), colors[labels[i]], 3, CV_AA);
+				cv::line(image, cv::Point2d(trajs[i].points[j].x_coordinate, trajs[i].points[j].y_coordinate),
+					cv::Point2d(trajs[i].points[j + 1].x_coordinate, trajs[i].points[j + 1].y_coordinate), colors[labels[i]], 3, CV_AA);
 			}
 
-			double x = trajs[i].points.back().x_coordinate;
-			double y = trajs[i].points.back().y_coordinate;
+			float x = trajs[i].points.back().x_coordinate;
+			float y = trajs[i].points.back().y_coordinate;
 
 			// draw arrow at end point
 			int arrowMagnitude = 18;
-			double angle = std::atan2(trajs[i].points.back().y_coordinate - trajs[i].points[numOfPoints-6].y_coordinate,
-				trajs[i].points.back().x_coordinate - trajs[i].points[numOfPoints - 6].x_coordinate);
+			double angle = std::atan2(trajs[i].points.back().y_coordinate - trajs[i].points[numOfPoints - 2].y_coordinate,
+				trajs[i].points.back().x_coordinate - trajs[i].points[numOfPoints - 2].x_coordinate);
 
 			double first_x = trajs[i].points.back().x_coordinate - arrowMagnitude * cos(angle + M_PI / 6.0);
 			double first_y = trajs[i].points.back().y_coordinate - arrowMagnitude * sin(angle + M_PI / 6.0);
 
-			cv::line(image, cv::Point(first_x, first_y), cv::Point(trajs[i].points.back().x_coordinate, trajs[i].points.back().y_coordinate), colors[labels[i]], 3, CV_AA);
+			cv::line(image, cv::Point2d(first_x, first_y), cv::Point2d(trajs[i].points.back().x_coordinate, trajs[i].points.back().y_coordinate), colors[labels[i]], 3, CV_AA);
 
 			double second_x = trajs[i].points.back().x_coordinate - arrowMagnitude * cos(angle - M_PI / 6.0);
 			double second_y = trajs[i].points.back().y_coordinate - arrowMagnitude * sin(angle - M_PI / 6.0);
 
-			cv::line(image, cv::Point(second_x, second_y), cv::Point(trajs[i].points.back().x_coordinate, trajs[i].points.back().y_coordinate), colors[labels[i]], 3, CV_AA);
+			cv::line(image, cv::Point2d(second_x, second_y), cv::Point2d(trajs[i].points.back().x_coordinate, trajs[i].points.back().y_coordinate), colors[labels[i]], 3, CV_AA);
 
 			// cv::putText code here...
 			if (x > image.size[0] - 20.0) {
@@ -152,12 +154,12 @@ void ClusteringComponent::compDrawTrajectoriesWithPercentage(std::vector<traj_el
 
 			cv::rectangle(
 				image,
-				cv::Point(x+12, y-18),
-				cv::Point(x+19*4, y-2),
+				cv::Point2f(x+12, y-18),
+				cv::Point2f(x+19*4, y-2),
 				cv::Scalar(255, 255, 255), CV_FILLED
 				);
 
-			cv::putText(image, to_string_with_precision(percentages[i], 3)+"%", cv::Point(x+12, y), 1.3, 1.3, cv::Scalar(0, 0, 0), 1, 8);
+			cv::putText(image, to_string_with_precision(percentages[i], 3)+"%", cv::Point2d(x+12, y), 1.3, 1.3, cv::Scalar(0, 0, 0), 1, 8);
 		}
 	}
 	cv::namedWindow(windowName, cv::WINDOW_AUTOSIZE);
@@ -178,8 +180,8 @@ void ClusteringComponent::compDrawCenters(std::vector<traj_elem_t>& trajs, std::
 			cv::line(image, cv::Point(trajs[i].points[j].x_coordinate, trajs[i].points[j].y_coordinate),
 			cv::Point(trajs[i].points[j + 1].x_coordinate, trajs[i].points[j + 1].y_coordinate), colors[labels[i]], 2, 8);
 			}*/
-			cv::arrowedLine(image, cv::Point(trajs[i].points.front().x_coordinate, trajs[i].points.front().y_coordinate),
-				cv::Point(trajs[i].points.back().x_coordinate, trajs[i].points.back().y_coordinate), colors[labels[i]], 2, 8);
+			cv::arrowedLine(image, cv::Point2d(trajs[i].points.front().x_coordinate, trajs[i].points.front().y_coordinate),
+				cv::Point2d(trajs[i].points.back().x_coordinate, trajs[i].points.back().y_coordinate), colors[labels[i]], 2, 8);
 		}
 	}
 	cv::namedWindow(windowName, cv::WINDOW_AUTOSIZE);
@@ -207,8 +209,8 @@ void ClusteringComponent::compDrawCluster(std::vector<traj_elem_t>& trajs, std::
 		}
 		for (size_t i = 0; i < targetTrajs.size(); i++) {
 			for (size_t j = 0; j < targetTrajs[i].points.size() - 1; j++) {
-				cv::line(image, cv::Point(targetTrajs[i].points[j].x_coordinate, targetTrajs[i].points[j].y_coordinate),
-					cv::Point(targetTrajs[i].points[j + 1].x_coordinate, targetTrajs[i].points[j + 1].y_coordinate), colors[clusterId], 1, 8);
+				cv::line(image, cv::Point2d(targetTrajs[i].points[j].x_coordinate, targetTrajs[i].points[j].y_coordinate),
+					cv::Point2d(targetTrajs[i].points[j + 1].x_coordinate, targetTrajs[i].points[j + 1].y_coordinate), colors[clusterId], 1, 8);
 			}
 		}
 		cv::namedWindow(windowName, cv::WINDOW_AUTOSIZE);
@@ -230,7 +232,7 @@ void ClusteringComponent::compDrawCentersWithCurve(std::vector<traj_elem_t>& tra
 
 			// estimate current traj
 			for (size_t j = 0; j < trajs[i].points.size(); j++) {
-				cv::Point newPoint = cv::Point(trajs[i].points[j].x_coordinate, trajs[i].points[j].y_coordinate);
+				cv::Point2d newPoint = cv::Point2d(trajs[i].points[j].x_coordinate, trajs[i].points[j].y_coordinate);
 				inputCurve.push_back(newPoint);
 			}
 
@@ -265,6 +267,59 @@ std::string ClusteringComponent::to_string_with_precision(double input_value, in
 	return out.str();
 }
 
+traj_elem_t ClusteringComponent::findClusterMedroid(std::vector<traj_elem_t>& trajs, std::vector<int>& labels, 
+	int clusterId, std::vector<std::vector<float>>& distMatrix) {
+	
+	traj_elem_t medroidTraj;
+	medroidTraj.trajId = clusterId;
+	medroidTraj.clusterId = clusterId;
+
+	// find all trajs in smae cluster
+	std::vector<traj_elem_t> targetTrajs;
+	for (size_t i = 0; i < labels.size(); i++) {
+		if (labels[i] == clusterId) {
+			targetTrajs.push_back(trajs[i]);
+		}
+	}
+
+	// find medroid only for cluster with enough trajs 
+	if (targetTrajs.size() >= 10) {
+
+		float currMinSum = std::numeric_limits<float>::max(); // min dist currently known 
+		int currMinIndex = 0; // the index of element to targetTrajs with currMinSum
+
+		for (int i = 0; i < targetTrajs.size(); i++) {
+			
+			int currTrajIndex = targetTrajs[i].trajId;
+			float distSum = 0.0;
+
+			for (int j = 0; j < targetTrajs.size(); j++) {
+				int testTrajIndex = targetTrajs[j].trajId;
+				distSum = distSum + distMatrix[currTrajIndex][testTrajIndex];
+			}
+
+			distSum = distSum / (targetTrajs.size() - 1);
+
+			if (distSum < currMinSum) {
+				currMinSum = distSum;
+				currMinIndex = i;
+			}
+		}
+
+		// the traj with minimum distSum in targetTrajs
+		traj_elem_t foundTraj = targetTrajs[currMinIndex];
+		std::cout << "Traj found with index " << foundTraj.trajId << " with sum: " << currMinSum << std::endl;
+		medroidTraj.points = foundTraj.points;
+		medroidTraj.trajId = foundTraj.trajId;
+	}
+	else {
+		medroidTraj.points = {};
+	}
+	medroidTraj.numOfPoints = medroidTraj.points.size();
+
+	return medroidTraj;
+}
+
 traj_elem_t ClusteringComponent::computeClusterCenter(std::vector<traj_elem_t>& trajs, std::vector<int>& labels, int clusterId) {
 	traj_elem_t centerTraj;
 	centerTraj.trajId = clusterId;
@@ -278,10 +333,10 @@ traj_elem_t ClusteringComponent::computeClusterCenter(std::vector<traj_elem_t>& 
 		}
 	}
 
-	if (targetTrajs.size() >= 3) {
-		// compute cluster center only if there're a few tracks 
+	if (targetTrajs.size() >= 10) {
+		// compute cluster center only if there're enough tracks 
 		for (int j = 0; j < targetTrajs[0].numOfPoints; j++) {
-			double xCoorSum = 0.0, yCoorSum = 0.0, speedXSum = 0.0, speedYSum = 0.0, startXSum = 0.0, startYSum = 0.0, endXSum = 0.0, endYSum = 0.0;
+			float xCoorSum = 0.0, yCoorSum = 0.0, speedXSum = 0.0, speedYSum = 0.0, startXSum = 0.0, startYSum = 0.0, endXSum = 0.0, endYSum = 0.0;
 			for (size_t k = 0; k < targetTrajs.size(); k++) {
 				point_t currPoint = targetTrajs[k].points[j];
 				xCoorSum = xCoorSum + currPoint.x_coordinate;
@@ -366,7 +421,7 @@ traj_elem_t ClusteringComponent::computeClusterCenterWithFlippedTraj(std::vector
 		}
 
 		for (int j = 0; j < targetTrajs[0].numOfPoints; j++) {
-			double xCoorSum = 0.0, yCoorSum = 0.0, speedXSum = 0.0, speedYSum = 0.0, startXSum = 0.0, startYSum = 0.0, endXSum = 0.0, endYSum = 0.0;
+			float xCoorSum = 0.0, yCoorSum = 0.0, speedXSum = 0.0, speedYSum = 0.0, startXSum = 0.0, startYSum = 0.0, endXSum = 0.0, endYSum = 0.0;
 			for (size_t k = 0; k < targetTrajs.size(); k++) {
 				point_t currPoint = targetTrajs[k].points[j];
 				xCoorSum = xCoorSum + currPoint.x_coordinate;
@@ -410,6 +465,7 @@ void ClusteringComponent::runAMKSClustering(PointsCollection& origPoints, Points
 			std::cout << "Enter iteration: " << iter << std::endl;
 	
 			PointsCollection newPointsCollection;
+			newPointsCollection.resize(origPoints.size());
 			NeighborPointsMap newNeighborsMap;
 	
 			if (iter == 1) {
@@ -426,22 +482,29 @@ void ClusteringComponent::runAMKSClustering(PointsCollection& origPoints, Points
 				double fastMapDuration = (std::clock() - fastMapStartTime) / (double)CLOCKS_PER_SEC;
 				std::cout << "fastNeighborsMap takes " << fastMapDuration << " seconds." << std::endl;
 			}
-			prevMSPoints.clear();
+			
+			//prevMSPoints.clear();
 			prevMSPoints = newPointsCollection;
-			prevMap.clear();
+			//prevMap.clear();
 			prevMap = newNeighborsMap;
-			msTrajs = updateTrajs(msTrajs, newPointsCollection);
+			//msTrajs = updateTrajs(msTrajs, newPointsCollection);
 	
 			std::cout << "Call fastAMSKClustering..." << std::endl;
 			std::clock_t fastAMKSStartTime = std::clock();
 			PointsCollection amksPointsCollection = fastAMKSClustering(amksTrajs, newNeighborsMap, currRadius);
 			double fastAMKSDuration = (std::clock() - fastAMKSStartTime) / (double)CLOCKS_PER_SEC;
 			std::cout << "fastAMKSClustering takes " << fastAMKSDuration << " seconds." << std::endl;
-			prevAMKSPoints.clear();
+			//prevAMKSPoints.clear();
 			prevAMKSPoints = amksPointsCollection;
 			amksTrajs = updateTrajs(amksTrajs, amksPointsCollection);
-	
-			compDrawTrajectories(amksTrajs, imageName, "Iter"+std::to_string(iter));
+		
+			// draw trajectories after certain iteration
+			/*if (iter % 2 == 0) {
+				compDrawTrajectories(amksTrajs, imageName, "Iter" + std::to_string(iter));
+			}
+			else if (iter == iterations) {
+				compDrawTrajectories(amksTrajs, imageName, "Iter" + std::to_string(iter));
+			}*/
 	
 			currRadius = currRadius - (startRadius - endRadius) / (iterations - 1);
 	
@@ -452,10 +515,13 @@ void ClusteringComponent::runAMKSClustering(PointsCollection& origPoints, Points
 		}
 }
 
-int ClusteringComponent::findNumberOfClusters(std::vector<traj_elem_t>& trajs, std::vector<int>& labels) {
+int ClusteringComponent::findNumberOfClusters(std::vector<traj_elem_t>& trajs, std::vector<int>& labels, 
+	double distThreshold, std::vector<std::vector<float>>& trajsDistMatrix) {
+
 	std::clock_t partitionStartTime = std::clock();
 	std::cout << "......" << std::endl;
-	int numberOfClusters = cv::partition(trajs, labels, isInSameCluster);
+	//int numberOfClusters = cv::partition(trajs, labels, isInSameCluster);
+	int numberOfClusters = trajsPartition(trajs, labels, distThreshold, trajsDistMatrix);
 	double partitionDuration = (std::clock() - partitionStartTime) / (double)CLOCKS_PER_SEC;
 	std::cout << "Identified number of clusters " << numberOfClusters << " takes " << partitionDuration << " seconds." << std::endl;
 	return numberOfClusters;
@@ -485,7 +551,7 @@ std::vector<double> ClusteringComponent::findClusteringCenters(std::vector<traj_
 		}
 
 		// compute centers and draw clusters
-		if (clusterTrajs.size() >= 3) {
+		if (clusterTrajs.size() >= 10) {
 
 			traj_elem_t currCenter = computeClusterCenter(origTrajs, labels, id);
 			//traj_elem_t currCenter = computeClusterCenter(clusterTrajs, labels, id);
@@ -496,8 +562,57 @@ std::vector<double> ClusteringComponent::findClusteringCenters(std::vector<traj_
 
 			for (size_t i = 0; i < clusterTrajs.size(); i++) {
 				for (size_t j = 0; j < clusterTrajs[i].points.size() - 1; j++) {
-					cv::line(image, cv::Point(clusterTrajs[i].points[j].x_coordinate, clusterTrajs[i].points[j].y_coordinate),
-						cv::Point(clusterTrajs[i].points[j + 1].x_coordinate, clusterTrajs[i].points[j + 1].y_coordinate), colors[id], 2, 8);
+					cv::line(image, cv::Point2d(clusterTrajs[i].points[j].x_coordinate, clusterTrajs[i].points[j].y_coordinate),
+						cv::Point2d(clusterTrajs[i].points[j + 1].x_coordinate, clusterTrajs[i].points[j + 1].y_coordinate), colors[id], 2, 8);
+				}
+			}
+		}
+	}
+	cv::namedWindow("Clusters", cv::WINDOW_AUTOSIZE);
+	cv::imshow("Clusters", image);
+	//cv::waitKey(0);
+
+	return percentages;
+}
+
+std::vector<double> ClusteringComponent::findClusteringMedroids(std::vector<traj_elem_t>& origTrajs, std::vector<traj_elem_t>& centerTrajs,
+	std::vector<int>& labels, std::vector<int>& centerLabels, std::vector<cv::Scalar> colors, int numberOfClusters, std::vector<std::vector<float>>& distMatrix) {
+
+	std::vector<double> percentages;
+
+	cv::Mat image = cv::imread(imageName, CV_LOAD_IMAGE_UNCHANGED);
+	/*if (image.empty) {
+	std::cout << "Fail to load image ..." << std::endl;
+	}*/
+
+	for (int id = 0; id < numberOfClusters; id++) {
+		//compDrawCluster(origTrajs, labels, colors, id, imageName, "Cluster " + std::to_string(id));
+		/*traj_elem_t currCenter = computeClusterCenter(origTrajs, labels, id);
+		centerTrajs.push_back(currCenter);
+		centerLabels.push_back(id);*/
+
+		std::vector<traj_elem_t> clusterTrajs;
+		for (size_t i = 0; i < labels.size(); i++) {
+			if (id == labels[i]) {
+				clusterTrajs.push_back(origTrajs[i]);
+			}
+		}
+
+		// compute centers and draw clusters
+		if (clusterTrajs.size() >= 10) {
+
+			//traj_elem_t currCenter = computeClusterCenter(origTrajs, labels, id);
+			traj_elem_t currCenter = findClusterMedroid(origTrajs, labels, id, distMatrix);
+			//traj_elem_t currCenter = computeClusterCenter(clusterTrajs, labels, id);
+			double currPercentage = (double)clusterTrajs.size() / (double)origTrajs.size() * 100.0;
+			centerTrajs.push_back(currCenter);
+			centerLabels.push_back(id);
+			percentages.push_back(currPercentage);
+
+			for (size_t i = 0; i < clusterTrajs.size(); i++) {
+				for (size_t j = 0; j < clusterTrajs[i].points.size() - 1; j++) {
+					cv::line(image, cv::Point2d(clusterTrajs[i].points[j].x_coordinate, clusterTrajs[i].points[j].y_coordinate),
+						cv::Point2d(clusterTrajs[i].points[j + 1].x_coordinate, clusterTrajs[i].points[j + 1].y_coordinate), colors[id], 2, 8);
 				}
 			}
 		}

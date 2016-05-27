@@ -63,15 +63,20 @@ public:
 	void compDrawCluster(std::vector<traj_elem_t>& trajs, std::vector<int>& labels, std::vector<cv::Scalar>& colors, int clusterId, std::string filename, std::string windowName);
 	void compDrawCentersWithCurve(std::vector<traj_elem_t>& trajs, std::vector<int>& labels, std::vector<cv::Scalar>& colors, std::string filename, std::string windowName);
 
+	traj_elem_t findClusterMedroid(std::vector<traj_elem_t>& trajs, std::vector<int>& labels, int clusterId, std::vector<std::vector<float>>& distMatrix);
 	traj_elem_t computeClusterCenter(std::vector<traj_elem_t>& trajs, std::vector<int>& labels, int clusterId); // calculate representative traj for a cluster
 	traj_elem_t computeClusterCenterWithFlippedTraj(std::vector<traj_elem_t>& trajs, std::vector<int>& labels, int clusterId); 
 
 	void runAMKSClustering(PointsCollection& origPoints, PointsCollection& prevMSPoints, PointsCollection& prevAMKSPoints, NeighborPointsMap& prevMap, 
 		std::vector<traj_elem_t>& msTrajs, std::vector<traj_elem_t>& amksTrajs, int iterations); // adaptive multi kernel clustering
 
-	int findNumberOfClusters(std::vector<traj_elem_t>& trajs, std::vector<int>& labels); // return the number of clusters being identified
+	int findNumberOfClusters(std::vector<traj_elem_t>& trajs, std::vector<int>& labels, 
+		double distThreshold, std::vector<std::vector<float>>& trajsDistMatrix); // return the number of clusters being identified
 	std::vector<double> findClusteringCenters(std::vector<traj_elem_t>& origTrajs, std::vector<traj_elem_t>& centerTrajs,
-		std::vector<int>& labels, std::vector<int>& centerLabels, std::vector<cv::Scalar> colors, int numberOfClusters); // find all centers for all clusters 
+		std::vector<int>& labels, std::vector<int>& centerLabels, std::vector<cv::Scalar> colors, int numberOfClusters); // find all centers for all clusters
+
+	std::vector<double> findClusteringMedroids(std::vector<traj_elem_t>& origTrajs, std::vector<traj_elem_t>& centerTrajs,
+		std::vector<int>& labels, std::vector<int>& centerLabels, std::vector<cv::Scalar> colors, int numberOfClusters, std::vector<std::vector<float>>& distMatrix);
 };
 
 #endif 

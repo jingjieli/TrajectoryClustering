@@ -7,6 +7,12 @@
 #include <algorithm>
 #include <math.h>
 #include <cmath>
+#include <ctime>
+
+void pair_insert(std::vector<std::pair<int, float>>& targetVector, std::pair<int, float> targetPair) {
+	std::vector<std::pair<int, float>>::iterator it = std::lower_bound(targetVector.begin(), targetVector.end(), targetPair, sort_pair());
+	targetVector.insert(it, targetPair);
+}
 
 std::vector<double> conv1d(std::vector<double> src, std::vector<double> gKernel) {
 	//int i, j, k;
@@ -231,12 +237,14 @@ NeighborPointsMap createNeighborsMap(std::vector<point_t>& pointsCollection,
 		}
 	}*/
 
+	newPointsCollection.resize(pointsCollection.size());
 	NeighborPointsMap neighborsMap;
 	
-	for (size_t j = 0; j < pointsCollection.size(); j++) {
+#pragma omp parallel for schedule(static,1) num_threads(4)
+	for (int j = 0; j < pointsCollection.size(); j++) {
 		point_t currPoint = pointsCollection[j];
-		std::vector<std::pair<int, double>> currNeighbors;
-		for (size_t k = 0; k < pointsCollection.size(); k++) {
+		std::vector<std::pair<int, float>> currNeighbors;
+		for (int k = 0; k < pointsCollection.size(); k++) {
 			if (j != k) {
 				point_t currTestPoint = pointsCollection[k];
 
@@ -246,13 +254,18 @@ NeighborPointsMap createNeighborsMap(std::vector<point_t>& pointsCollection,
 					currTestPoint.y_coordinate >= currPoint.y_coordinate - currRadius &&
 					currTestPoint.y_coordinate <= currPoint.y_coordinate + currRadius) {
 
-					double currDistance = sqrt(pow((currPoint.x_coordinate - currTestPoint.x_coordinate), 2.0) +
+					float currDistance = (float)sqrt(pow((currPoint.x_coordinate - currTestPoint.x_coordinate), 2.0) +
 						pow((currPoint.y_coordinate - currTestPoint.y_coordinate), 2.0));
 					if (currDistance <= currRadius) {
-						std::pair<int, double> currPair(k, currDistance);
+						std::pair<int, float> currPair(k, currDistance);
 						currNeighbors.push_back(currPair);
+						//pair_insert(currNeighbors, currPair);
 					}
 				}
+			}
+
+			if (currNeighbors.size() >= 250) {
+				break;
 			}
 		}
 		/*for (int k = 0; k < numOfPoints; k++) {
@@ -261,9 +274,25 @@ NeighborPointsMap createNeighborsMap(std::vector<point_t>& pointsCollection,
 				currNeighbors.push_back(currPair);
 			}
 		}*/
-		neighborsMap.insert(std::pair<int, std::vector<std::pair<int, double>>>(j, currNeighbors));
 
-		if (currNeighbors.size() != 0) {
+		// constrain neighbor size 
+		if (currNeighbors.size() > MAX_NEIGHBORS_SIZE) {
+			std::vector<std::pair<int, float>> resizeCurrNeighbors;
+			std::sort(currNeighbors.begin(), currNeighbors.end(), sort_pair()); // sort into ascending order
+			for (int i = 0; i < MAX_NEIGHBORS_SIZE; i++) {
+				resizeCurrNeighbors.push_back(currNeighbors[i]);
+			}
+			//neighborsMap.insert(std::pair<int, std::vector<std::pair<int, double>>>(j, resizeCurrNeighbors));
+			currNeighbors = resizeCurrNeighbors; // update currNeighbors
+		}
+		
+		// critical section for inserting element into neighborsMap
+#pragma omp critical 
+{
+		neighborsMap.insert(std::pair<int, std::vector<std::pair<int, float>>>(j, currNeighbors));
+}
+
+		if (currNeighbors.size() >= 10) {
 
 			// create a weighting function for currPoint after getting all of its neighbors
 			std::vector<double> weights;
@@ -290,8 +319,8 @@ NeighborPointsMap createNeighborsMap(std::vector<point_t>& pointsCollection,
 			}
 			point_t newPoint = {
 				currPoint.trajId,
-				xSum,
-				ySum,
+				(float)xSum,
+				(float)ySum,
 				currPoint.speed_x,
 				currPoint.speed_y,
 				currPoint.start_x,
@@ -299,11 +328,13 @@ NeighborPointsMap createNeighborsMap(std::vector<point_t>& pointsCollection,
 				currPoint.end_x,
 				currPoint.end_y,
 			};
-			newPointsCollection.push_back(newPoint);
+			newPointsCollection[j] = newPoint;
+			//newPointsCollection.push_back(newPoint);
 		}
 		else {
 			point_t newPoint = currPoint;
-			newPointsCollection.push_back(newPoint);
+			newPointsCollection[j] = newPoint;
+			//newPointsCollection.push_back(newPoint);
 		}
 
 		/*if (j % 1000 == 0) {
@@ -316,11 +347,14 @@ NeighborPointsMap createNeighborsMap(std::vector<point_t>& pointsCollection,
 NeighborPointsMap fastNeighborsMap(std::vector<point_t>& pointsCollection, std::vector<point_t>& newPointsCollection,
 	NeighborPointsMap& originalMap, double currRadius) {
 
+	newPointsCollection.resize(pointsCollection.size());
 	NeighborPointsMap resultMap;
 
-	for (size_t j = 0; j < pointsCollection.size(); j++) {
+#pragma omp parallel for schedule(static,1) num_threads(4)
+
+	for (int j = 0; j < pointsCollection.size(); j++) {
 		point_t currPoint = pointsCollection[j];
-		std::vector<std::pair<int, double>> currNeighbors;
+		std::vector<std::pair<int, float>> currNeighbors;
 		// only iterate over the neighbors previously found
 		for (size_t k = 0; k < originalMap.find(j)->second.size(); k++) {
 			int currNeighborIndex = originalMap.find(j)->second[k].first;
@@ -332,17 +366,22 @@ NeighborPointsMap fastNeighborsMap(std::vector<point_t>& pointsCollection, std::
 				currTestPoint.y_coordinate >= currPoint.y_coordinate - currRadius &&
 				currTestPoint.y_coordinate <= currPoint.y_coordinate + currRadius) {
 
-				double currDistance = sqrt(pow((currPoint.x_coordinate - currTestPoint.x_coordinate), 2.0) +
+				float currDistance = (float)sqrt(pow((currPoint.x_coordinate - currTestPoint.x_coordinate), 2.0) +
 					pow((currPoint.y_coordinate - currTestPoint.y_coordinate), 2.0));
 				if (currDistance <= currRadius) {
-					std::pair<int, double> currPair(currNeighborIndex, currDistance);
+					std::pair<int, float> currPair(currNeighborIndex, currDistance);
 					currNeighbors.push_back(currPair);
 				}
 			}
 		}
-		resultMap.insert(std::pair<int, std::vector<std::pair<int, double>>>(j, currNeighbors));
 
-		if (currNeighbors.size() != 0) {
+		// critical section for inserting element into resultMap
+#pragma omp critical 
+{
+		resultMap.insert(std::pair<int, std::vector<std::pair<int, float>>>(j, currNeighbors));
+}
+
+		if (currNeighbors.size() >= 5) {
 
 			// create a weighting function for currPoint after getting all of its neighbors
 			std::vector<double> weights;
@@ -369,8 +408,8 @@ NeighborPointsMap fastNeighborsMap(std::vector<point_t>& pointsCollection, std::
 			}
 			point_t newPoint = {
 				currPoint.trajId,
-				xSum,
-				ySum,
+				(float)xSum,
+				(float)ySum,
 				currPoint.speed_x,
 				currPoint.speed_y,
 				currPoint.start_x,
@@ -378,11 +417,13 @@ NeighborPointsMap fastNeighborsMap(std::vector<point_t>& pointsCollection, std::
 				currPoint.end_x,
 				currPoint.end_y,
 			};
-			newPointsCollection.push_back(newPoint);
+			newPointsCollection[j] = newPoint;
+			//newPointsCollection.push_back(newPoint);
 		}
 		else {
 			point_t newPoint = currPoint;
-			newPointsCollection.push_back(newPoint);
+			newPointsCollection[j] = newPoint;
+			//newPointsCollection.push_back(newPoint);
 		}
 	}
 
@@ -390,28 +431,29 @@ NeighborPointsMap fastNeighborsMap(std::vector<point_t>& pointsCollection, std::
 }
 
 
-std::vector<point_t> meanShiftClustering(std::vector<traj_elem_t>& trajs, double currRadius) {
-	std::vector<point_t> newPointsCollection;
-	double maxX = std::numeric_limits<double>::min();
-	double maxY = std::numeric_limits<double>::min();
-	double minX = std::numeric_limits<double>::max();
-	double minY = std::numeric_limits<double>::max();
-	std::vector<point_t> pointsCollection = createPointsCollection(trajs, minX, maxX, minY, maxY);
-	NeighborPointsMap neighborsMap = createNeighborsMap(pointsCollection, newPointsCollection, currRadius);
-	// trajs before update
-	//printPoint(trajs[3].points[5]);
-	trajs = updateTrajs(trajs, newPointsCollection);
-	// trajs after update
-	//printPoint(trajs[3].points[5]);
-
-	std::vector<point_t> anotherNewPointsCollection;
-	NeighborPointsMap updatedMap = fastNeighborsMap(newPointsCollection, anotherNewPointsCollection, neighborsMap, currRadius - 5.0);
-	trajs = updateTrajs(trajs, anotherNewPointsCollection);
-
-	return anotherNewPointsCollection;
-}
+//std::vector<point_t> meanShiftClustering(std::vector<traj_elem_t>& trajs, double currRadius) {
+//	std::vector<point_t> newPointsCollection;
+//	double maxX = std::numeric_limits<double>::min();
+//	double maxY = std::numeric_limits<double>::min();
+//	double minX = std::numeric_limits<double>::max();
+//	double minY = std::numeric_limits<double>::max();
+//	std::vector<point_t> pointsCollection = createPointsCollection(trajs, minX, maxX, minY, maxY);
+//	NeighborPointsMap neighborsMap = createNeighborsMap(pointsCollection, newPointsCollection, currRadius);
+//	// trajs before update
+//	//printPoint(trajs[3].points[5]);
+//	trajs = updateTrajs(trajs, newPointsCollection);
+//	// trajs after update
+//	//printPoint(trajs[3].points[5]);
+//
+//	std::vector<point_t> anotherNewPointsCollection;
+//	NeighborPointsMap updatedMap = fastNeighborsMap(newPointsCollection, anotherNewPointsCollection, neighborsMap, currRadius - 5.0);
+//	trajs = updateTrajs(trajs, anotherNewPointsCollection);
+//
+//	return anotherNewPointsCollection;
+//}
 
 std::vector<point_t> fastAMKSClustering(std::vector<traj_elem_t>& trajs, NeighborPointsMap& neighborsMap, double currRadius) {
+
 	std::vector<point_t> newPointsCollection;
 	double maxX = std::numeric_limits<double>::min();
 	double maxY = std::numeric_limits<double>::min();
@@ -420,17 +462,21 @@ std::vector<point_t> fastAMKSClustering(std::vector<traj_elem_t>& trajs, Neighbo
 	std::vector<point_t> pointsCollection = createPointsCollection(trajs, minX, maxX, minY, maxY);
 	Matrix densityMatrix = buildDensityMatrix(trajs, currRadius, minX, maxX, minY, maxY);
 
+	newPointsCollection.resize(pointsCollection.size());
+
 	int floorX = (int)floor(minX);
 	int floorY = (int)floor(minY);
 
-	for (size_t i = 0; i < pointsCollection.size(); i++) {
+#pragma omp parallel for schedule(static,1) num_threads(4)
+
+	for (int i = 0; i < pointsCollection.size(); i++) {
 		point_t currPoint = pointsCollection[i];
 		std::vector<int> neighborsX, neighborsY;
 		std::vector<double> geoDist, aimDist, speedDist, densityDist;
 
-		std::vector<std::pair<int, double>> currNeighbors = neighborsMap.find(i)->second; // find all neighbors of a given point
+		std::vector<std::pair<int, float>> currNeighbors = neighborsMap.find(i)->second; // find all neighbors of a given point
 
-		if (currNeighbors.size() != 0) {
+		if (currNeighbors.size() >= 5) {
 
 			// iterate over all neighbors and calculate distances
 			for (size_t j = 0; j < currNeighbors.size(); j++) {
@@ -496,28 +542,160 @@ std::vector<point_t> fastAMKSClustering(std::vector<traj_elem_t>& trajs, Neighbo
 
 			point_t newPoint = {
 				currPoint.trajId,
-				xSum,
-				ySum,
-				xSpeed,
-				ySpeed,
+				(float)xSum,
+				(float)ySum,
+				(float)xSpeed,
+				(float)ySpeed,
 				currPoint.start_x,
 				currPoint.start_y,
 				currPoint.end_x,
 				currPoint.end_y,
 			};
-
-			newPointsCollection.push_back(newPoint);
+			newPointsCollection[i] = newPoint;
+			//newPointsCollection.push_back(newPoint);
 		}
 		else {
 			point_t newPoint = currPoint;
-			newPointsCollection.push_back(newPoint);
+			newPointsCollection[i] = newPoint;
+			//newPointsCollection.push_back(newPoint);
 		}
 	}
 
 	return newPointsCollection;
 }
 
-bool isInSameCluster(traj_elem_t firstTraj, traj_elem_t secondTraj) {
+// reference: cv::partition
+int trajsPartition(std::vector<traj_elem_t>& trajs, std::vector<int>& labels, double distThreshold, std::vector<std::vector<float>>& distMatrix) {
+
+	int i, j, N = trajs.size();
+	const traj_elem_t* traj = &trajs[0];
+
+	std::vector<std::vector<bool>> matrix(N, std::vector<bool>(N)); // i-j: in same cluster?
+
+	const int PARENT = 0;
+	const int RANK = 1;
+
+	std::vector<int> _nodes(N * 2);
+	int(*nodes)[2] = (int(*)[2])&_nodes[0];
+
+	// First O(N) pass: create N single-vertex trees
+	for (i = 0; i < N; i++) {
+		nodes[i][PARENT] = -1;
+		nodes[i][RANK] = 0;
+	}
+
+	// The main O(N^2) pass: merge connected components
+	for (i = 0; i < N; i++) {
+
+		//std::clock_t oneTrajStart = std::clock();
+
+		int root = i;
+
+		// find root
+		while (nodes[root][PARENT] >= 0)
+		{
+			root = nodes[root][PARENT];
+		}
+
+#pragma omp parallel for schedule(static,1) num_threads(4)
+
+		for (j = 0; j < N; j++) {
+
+			bool inSame;
+			float trajsDist = 0.0;
+
+			if (j > i) {
+				inSame = isInSameCluster(trajs[i], trajs[j], distThreshold, trajsDist);
+			}
+			else if (j < i) {
+				inSame = matrix[j][i];
+				trajsDist = distMatrix[j][i];
+			}
+			else {
+				inSame = true;
+				trajsDist = 0.0;
+			}
+
+#pragma omp critical 
+			{
+				matrix[i][j] = inSame;
+				distMatrix[i][j] = trajsDist;
+			}
+
+			//if (i == j || !isInSameCluster(trajs[i], trajs[j], distThreshold))
+			if (i == j || !matrix[i][j])
+				continue;
+			int root2 = j;
+
+			while (nodes[root2][PARENT] >= 0)
+			{
+				root2 = nodes[root2][PARENT];
+			}
+
+			if (root2 != root) {
+				// unite both trees
+				int rank = nodes[root][RANK], rank2 = nodes[root2][RANK];
+
+#pragma omp critical 
+				{
+					if (rank > rank2) {
+						nodes[root2][PARENT] = root;
+					}
+					else {
+						nodes[root][PARENT] = root2;
+						nodes[root2][RANK] += rank == rank2;
+						root = root2;
+					}
+
+					//CV_Assert(nodes[root][PARENT] < 0);
+
+					int k = j, parent;
+
+					// compares the path from node to root
+
+					while ((parent = nodes[k][PARENT]) >= 0) {
+						nodes[k][PARENT] = root;
+						k = parent;
+					}
+
+
+					// compares the path from node to root
+					k = i;
+
+					while ((parent = nodes[k][PARENT]) >= 0) {
+						nodes[k][PARENT] = root;
+						k = parent;
+					}
+				}
+			}
+		}
+
+		//double oneTrajDuration = (std::clock() - oneTrajStart) / (double)CLOCKS_PER_SEC;
+		//std::cout << "Process Traj " << i << " takes " << oneTrajDuration << " seconds." << std::endl;
+
+	}
+
+	// Final O(N) pass: enumerate classes
+	labels.resize(N);
+	int nclasses = 0;
+
+	for (i = 0; i < N; i++) {
+		int root = i;
+		while (nodes[root][PARENT] >= 0) {
+			root = nodes[root][PARENT];
+		}
+
+		// reuse rank as class label
+		if (nodes[root][RANK] >= 0) {
+			nodes[root][RANK] = ~nclasses++;
+		}
+		labels[i] = ~nodes[root][RANK];
+	}
+
+	return nclasses;
+}
+
+bool isInSameCluster(traj_elem_t firstTraj, traj_elem_t secondTraj, double distThreshold, float& trajsDist) {
 	int rowSize = firstTraj.points.size() + 1;
 	int colSize = secondTraj.points.size() + 1;
 	Matrix dtw(rowSize, Column(colSize, 0.0));
@@ -532,9 +710,9 @@ bool isInSameCluster(traj_elem_t firstTraj, traj_elem_t secondTraj) {
 
 	for (int i = 1; i < rowSize; i++) {
 		// consider only points nearby
-		for (int j = i - 2; j <= i + 2; j++) {
+		for (int j = i - 3; j <= i + 3; j++) {
 			if (j >= 1 && j < colSize) {
-				double cost = pointDifference(firstTraj.points[i - 1], secondTraj.points[j - 1]);
+				float cost = pointDifference(firstTraj.points[i - 1], secondTraj.points[j - 1]);
 				dtw[i][j] = cost + std::min(dtw[i - 1][j], std::min(dtw[i][j - 1], dtw[i - 1][j - 1]));
 			}
 		}
@@ -544,8 +722,9 @@ bool isInSameCluster(traj_elem_t firstTraj, traj_elem_t secondTraj) {
 		}*/
 	}
 
-	double dtwDist = dtw[rowSize - 1][colSize - 1] / (rowSize - 1);
-	if (dtwDist < TRAJS_DIST_THRESHOLD) {
+	trajsDist = dtw[rowSize - 1][colSize - 1] / (rowSize - 1);
+	double dtwDist = (double)dtw[rowSize - 1][colSize - 1] / (rowSize - 1);
+	if (dtwDist < distThreshold) {
 		return true;
 	}
 
@@ -576,11 +755,11 @@ bool isInSameCluster(traj_elem_t firstTraj, traj_elem_t secondTraj) {
 	//return false;
 }
 
-bool isAbnormal(std::vector<traj_elem_t> centerTrajs, traj_elem_t testTraj) {
-	for (size_t i = 0; i < centerTrajs.size(); i++) {
-		if (centerTrajs[i].numOfPoints != 0 && isInSameCluster(centerTrajs[i], testTraj)) {
-			return false;
-		}
-	}
-	return true;
-}
+//bool isAbnormal(std::vector<traj_elem_t> centerTrajs, traj_elem_t testTraj) {
+//	for (size_t i = 0; i < centerTrajs.size(); i++) {
+//		if (centerTrajs[i].numOfPoints != 0 && isInSameCluster(centerTrajs[i], testTraj)) {
+//			return false;
+//		}
+//	}
+//	return true;
+//}

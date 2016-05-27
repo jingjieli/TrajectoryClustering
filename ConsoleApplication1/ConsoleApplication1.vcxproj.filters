@@ -65,6 +65,9 @@
     <ClInclude Include="ClusteringComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="dtw.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="DataLin.txt">
@@ -98,6 +101,15 @@
       <Filter>Resource Files</Filter>
     </Text>
     <Text Include="DataLin_split_2.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="iostrack.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="sciotracks.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="sciotracks_traclus.txt">
       <Filter>Resource Files</Filter>
     </Text>
   </ItemGroup>

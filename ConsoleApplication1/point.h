@@ -3,18 +3,18 @@
 
 struct point_t {
 	int trajId;
-	double x_coordinate;
-	double y_coordinate;
-	double speed_x;
-	double speed_y;
-	double start_x;
-	double start_y;
-	double end_x;
-	double end_y;
+	float x_coordinate;
+	float y_coordinate;
+	float speed_x;
+	float speed_y;
+	float start_x;
+	float start_y;
+	float end_x;
+	float end_y;
 };
 
 void printPoint(point_t& point);
 
-double pointDifference(point_t& firstPoint, point_t& secondPoint);
+float pointDifference(point_t& firstPoint, point_t& secondPoint);
 
 #endif 

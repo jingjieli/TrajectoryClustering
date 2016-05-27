@@ -125,6 +125,8 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>C:\Users\gingerli\Documents\opencv_vs10\windows_vs10\install\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -145,8 +147,10 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Users\gingerli\Documents\opencv_vs10\windows_vs10\install\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\gingerli\Documents\opencv\build\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -154,7 +158,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>C:\Users\gingerli\Documents\opencv\build\x64\vc12\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opencv_calib3d2411d.lib;opencv_contrib2411d.lib;opencv_core2411d.lib;opencv_features2d2411d.lib;opencv_flann2411d.lib;opencv_highgui2411d.lib;opencv_imgproc2411d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_calib3d2411.lib;opencv_contrib2411.lib;opencv_core2411.lib;opencv_features2d2411.lib;opencv_flann2411.lib;opencv_highgui2411.lib;opencv_imgproc2411.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -171,6 +175,7 @@
   <ItemGroup>
     <ClInclude Include="Clustering.h" />
     <ClInclude Include="ClusteringComponent.h" />
+    <ClInclude Include="dtw.h" />
     <ClInclude Include="ExtractFeature.h" />
     <ClInclude Include="InputFileHandler.h" />
     <ClInclude Include="point.h" />
@@ -184,7 +189,10 @@
     <Text Include="DataLin_split_1.txt" />
     <Text Include="DataLin_split_2.txt" />
     <Text Include="DataMorris.txt" />
+    <Text Include="iostrack.txt" />
     <Text Include="pcs_tracks.txt" />
+    <Text Include="sciotracks.txt" />
+    <Text Include="sciotracks_traclus.txt" />
     <Text Include="scratch.txt" />
     <Text Include="Subtest.txt" />
     <Text Include="Test.txt" />
